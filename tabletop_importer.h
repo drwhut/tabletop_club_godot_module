@@ -1,5 +1,5 @@
 /*
-    open-tabletop-import-module
+    open_tabletop_import_module
     Copyright (c) 2020 drwhut
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
