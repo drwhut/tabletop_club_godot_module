@@ -31,8 +31,7 @@ TabletopImporter::TabletopImporter() {}
 Error TabletopImporter::import_texture(const String &p_path, const String &p_game,
     const String &p_type) {
     
-    ResourceImporterTexture texture_importer;
-    return _import_resource(&texture_importer, p_path, p_game, p_type);
+    return _import_resource(ResourceImporterTexture::get_singleton(), p_path, p_game, p_type);
 }
 
 void TabletopImporter::_bind_methods() {
