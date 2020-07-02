@@ -33,6 +33,7 @@ class TabletopImporter : public Reference {
 
 public:
     TabletopImporter();
+    ~TabletopImporter();
 
     Error import_texture(const String &p_path, const String &p_game,
         const String &p_type);

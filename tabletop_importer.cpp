@@ -28,10 +28,18 @@
 
 TabletopImporter::TabletopImporter() {}
 
+TabletopImporter::~TabletopImporter() {}
+
 Error TabletopImporter::import_texture(const String &p_path, const String &p_game,
     const String &p_type) {
     
-    return _import_resource(ResourceImporterTexture::get_singleton(), p_path, p_game, p_type);
+    // If the singleton isn't defined, define it now.
+    ResourceImporterTexture *texture_importer = ResourceImporterTexture::get_singleton();
+    if (!texture_importer) {
+        texture_importer = new ResourceImporterTexture();
+    }
+
+    return _import_resource(texture_importer, p_path, p_game, p_type);
 }
 
 void TabletopImporter::_bind_methods() {
