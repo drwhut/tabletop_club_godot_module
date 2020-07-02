@@ -1,0 +1,26 @@
+Import("env")
+
+sources = [
+    "register_types.cpp",
+    "tabletop_importer.cpp"
+]
+
+module_env = env.Clone()
+
+if ARGUMENTS.get("tabletop_importer_shared", "no") == "yes":
+
+    # Build the module as a shared library so we don't go crazy when developing
+    # it and have to statically link it every time.
+    module_env.Append(CCFLAGS=["-fPIC"])
+    module_env["LIBS"] = []
+
+    shared_lib = module_env.SharedLibrary(target="#bin/tabletop_importer", source=sources)
+    shared_lib_shim = shared_lib[0].name.rsplit(".", 1)[0]
+
+    env.Append(LIBS=[shared_lib_shim])
+    env.Append(LIBPATH=["#bin"])
+
+else:
+
+    # Statically link the library if you're just compiling it once.
+    module_env.add_source_files(env.modules_sources, sources)
