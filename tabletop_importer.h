@@ -24,19 +24,23 @@
 #ifndef TABLETOP_IMPORTER_H
 #define TABLETOP_IMPORTER_H
 
+#include "core/error_list.h"
 #include "core/reference.h"
-#include "scene/resources/texture.h"
+#include "editor/import/resource_importer_texture.h"
 
 class TabletopImporter : public Reference {
     GDCLASS(TabletopImporter, Reference);
 
-protected:
-    static void _bind_methods();
-
 public:
     TabletopImporter();
 
-    Texture import_texture(const String &p_path);
+    Error import_texture(const String &p_path, const String &p_game,
+        const String &p_type);
+
+protected:
+    static void _bind_methods();
+    static Error _import_resource(ResourceImporter *p_importer,
+        const String &p_path, const String &p_game, const String &p_type);
 };
 
 #endif // TABLETOP_IMPORTER_H
