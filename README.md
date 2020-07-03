@@ -16,6 +16,9 @@ A Godot Engine module allowing open-tabletop to import selected resources at run
 
 ```cpp
 2102 OS::get_singleton()->set_main_loop(main_loop);
-2103 // <-- Change to: OS::get_singleton()->set_console_visible(false);
+2103 // <-- Change to:
+     // #ifndef DEBUG_MEMORY_ENABLED
+     // OS::get_singleton()->set_console_visible(false);
+     // #endif
 2104 return true;
 ```
