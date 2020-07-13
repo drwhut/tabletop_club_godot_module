@@ -26,7 +26,8 @@
 
 #include "core/error_list.h"
 #include "core/reference.h"
-#include "editor/import/resource_importer_texture.h"
+#include "core/io/resource_importer.h"
+#include "core/os/dir_access.h"
 
 class TabletopImporter : public Reference {
     GDCLASS(TabletopImporter, Reference);
@@ -35,13 +36,14 @@ public:
     TabletopImporter();
     ~TabletopImporter();
 
-    Error import_texture(const String &p_path, const String &p_game,
-        const String &p_type);
+    Error copy_file(const String &p_from, const String &p_to);
+    Error import_scene(const String &p_path);
+    Error import_texture(const String &p_path);
 
 protected:
     static void _bind_methods();
-    static Error _import_resource(ResourceImporter *p_importer,
-        const String &p_path, const String &p_game, const String &p_type);
+    static Error _create_import_dir(DirAccess **dir);
+    static Error _import_resource(ResourceImporter *p_importer, const String &p_path);
 };
 
 #endif // TABLETOP_IMPORTER_H

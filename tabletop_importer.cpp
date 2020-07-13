@@ -23,78 +23,49 @@
 
 #include "tabletop_importer.h"
 
-#include "core/os/dir_access.h"
 #include "core/os/os.h"
+#include "editor/import/editor_scene_importer_gltf.h"
+#include "editor/import/resource_importer_scene.h"
+#include "editor/import/resource_importer_texture.h"
 
-TabletopImporter::TabletopImporter() {}
+TabletopImporter::TabletopImporter() {
+    if (!ResourceImporterTexture::get_singleton()) {
+        Ref<ResourceImporterTexture> texture_importer;
+        texture_importer.instance();
+        ResourceFormatImporter::get_singleton()->add_importer(texture_importer);
+    }
+
+    if (!ResourceImporterScene::get_singleton()) {
+        Ref<ResourceImporterScene> scene_importer;
+        scene_importer.instance();
+        ResourceFormatImporter::get_singleton()->add_importer(scene_importer);
+    
+        Ref<EditorSceneImporterGLTF> gltf_importer;
+        gltf_importer.instance();
+        scene_importer->add_importer(gltf_importer);
+    }
+}
 
 TabletopImporter::~TabletopImporter() {}
 
-Error TabletopImporter::import_texture(const String &p_path, const String &p_game,
-    const String &p_type) {
-    
-    // If the singleton isn't defined, define it now.
-    ResourceImporterTexture *texture_importer = ResourceImporterTexture::get_singleton();
-    if (!texture_importer) {
-        texture_importer = new ResourceImporterTexture();
-    }
+Error TabletopImporter::copy_file(const String &p_from, const String &p_to) {
 
-    return _import_resource(texture_importer, p_path, p_game, p_type);
-}
-
-void TabletopImporter::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("import_texture", "path", "game", "type"), &TabletopImporter::import_texture);
-}
-
-Error TabletopImporter::_import_resource(ResourceImporter *p_importer, const String &p_path, const String &p_game, const String &p_type) {
-
-    if (!FileAccess::exists(p_path)) {
+    if (!FileAccess::exists(p_from)) {
         return Error::ERR_FILE_NOT_FOUND;
     }
 
-    // Make sure the folder structure is consistent, despite the arguments.
-    p_game.replace("\\", "/");
-    p_game.replace("/", "_");
-
-    p_type.replace("\\", "/");
-    p_type.replace("/", "_");
-
-    /**
-     * STEP 1: Make sure the directories we want to write to exist.
-     * 
-     * user://.import for the .stex and .md5 files,
-     * user://{p_game}/{p_type} for the resources themselves.
-     */
-
-    Error dir_error = Error::OK;
-    DirAccess *dir = DirAccess::open(OS::get_singleton()->get_user_data_dir(), &dir_error);
-
-    if (dir_error != Error::OK) {
-        return dir_error;
+    DirAccess *dir;
+    Error import_dir_error = _create_import_dir(&dir);
+    if (!(import_dir_error == Error::OK || import_dir_error == Error::ERR_ALREADY_EXISTS)) {
+        return import_dir_error;
     }
 
-    dir_error = dir->make_dir(".import");
-    if (!(dir_error == Error::OK || dir_error == Error::ERR_ALREADY_EXISTS)) {
-        return dir_error;
-    }
+    // Check to see if the corresponding .md5 file exists, and if it does, does
+    // it contain the same hash? If so, we don't need to copy the file again.
+    String file_import_name = p_from.get_file() + "-" + p_from.md5_text();
+    String md5_file_path = dir->get_current_dir() + "/" + file_import_name + ".md5";
 
-    dir_error = dir->make_dir_recursive(p_game + "/" + p_type);
-    if (!(dir_error == Error::OK || dir_error == Error::ERR_ALREADY_EXISTS)) {
-        return dir_error;
-    }
-
-    /**
-     * STEP 2: If the corresponding .md5 file exists in .import/, check the md5
-     * hash of the resource and if it is the same, stop now (since there's no
-     * point in continuing).
-     */
-
-    String file_import_name = p_path.get_file() + "-" + p_path.md5_text();
-    dir->change_dir(".import");
-    String file_import_path = dir->get_current_dir() + "/" + file_import_name;
-    String md5_file_path = file_import_path + ".md5";
-
-    String md5 = FileAccess::get_md5(p_path);
+    String md5 = FileAccess::get_md5(p_from);
     FileAccess *md5_file;
 
     if (FileAccess::exists(md5_file_path)) {
@@ -109,22 +80,92 @@ Error TabletopImporter::_import_resource(ResourceImporter *p_importer, const Str
         memdelete(md5_file);
 
         if (claimed_md5 == md5) {
-            return Error::OK;
+            return Error::ERR_ALREADY_EXISTS;
         }
     }
 
-    /**
-     * STEP 3: Copy the resource file over to user://{p_game}/{p_type}/{file_name}
-     */
+    memdelete(dir);
 
-    dir->change_dir("../" + p_game + "/" + p_type);
+    // If either the .md5 file doesn't exist, or the hash is not the same, then
+    // copy the file over.
     DirAccess *main_dir = DirAccess::create(DirAccess::AccessType::ACCESS_FILESYSTEM);
-    main_dir->copy(p_path, dir->get_current_dir() + "/" + p_path.get_file());
+    Error copy_error = main_dir->copy(p_from, p_to);
+
+    if (copy_error != Error::OK) {
+        return copy_error;
+    }
 
     memdelete(main_dir);
+    
+    // Finally, create the .md5 file, and store the hash of the file in it.
+    md5_file = FileAccess::open(md5_file_path, FileAccess::WRITE);
+    if (!md5_file) {
+        return Error::ERR_FILE_CANT_WRITE;
+    }
+
+    md5_file->store_line(md5);
+    md5_file->close();
+
+    memdelete(md5_file);
+
+    return Error::OK;
+}
+
+Error TabletopImporter::import_scene(const String &p_path) {
+
+    return _import_resource(ResourceImporterScene::get_singleton(), p_path);
+}
+
+Error TabletopImporter::import_texture(const String &p_path) {
+
+    return _import_resource(ResourceImporterTexture::get_singleton(), p_path);
+}
+
+void TabletopImporter::_bind_methods() {
+    ClassDB::bind_method(D_METHOD("copy_file", "from", "to"), &TabletopImporter::copy_file);
+    ClassDB::bind_method(D_METHOD("import_scene", "path"), &TabletopImporter::import_scene);
+    ClassDB::bind_method(D_METHOD("import_texture", "path"), &TabletopImporter::import_texture);
+}
+
+Error TabletopImporter::_create_import_dir(DirAccess **dir) {
+    Error dir_error = Error::OK;
+    DirAccess *import_dir = DirAccess::open(OS::get_singleton()->get_user_data_dir(), &dir_error);
+
+    if (dir_error != Error::OK) {
+        return dir_error;
+    }
+
+    dir_error = import_dir->make_dir(".import");
+
+    if (dir) {
+        import_dir->change_dir(".import");
+        *dir = import_dir;
+    } else {
+        memdelete(import_dir);
+    }
+
+    return dir_error;
+}
+
+Error TabletopImporter::_import_resource(ResourceImporter *p_importer, const String &p_path) {
+
+    if (!FileAccess::exists(p_path)) {
+        return Error::ERR_FILE_NOT_FOUND;
+    }
 
     /**
-     * STEP 4: Use the importer object to create a .stex file in the .import
+     * STEP 1: Make sure the directories we want to write to exist.
+     * 
+     * user://.import for the .stex and .md5 files.
+     */
+    DirAccess *dir;
+    Error import_dir_error = _create_import_dir(&dir);
+    if (!(import_dir_error == Error::OK || import_dir_error == Error::ERR_ALREADY_EXISTS)) {
+        return import_dir_error;
+    }
+
+    /**
+     * STEP 2: Use the importer object to create a .stex file in the .import
      * folder.
      * 
      * This point onwards is based from the code in:
@@ -142,7 +183,8 @@ Error TabletopImporter::_import_resource(ResourceImporter *p_importer, const Str
     }
 
     // The location where the .stex file will be located.
-    dir->change_dir("../../.import");
+    String file_import_path = dir->get_current_dir() + "/" + p_path.get_file() + "-" + p_path.md5_text();
+    memdelete(dir);
     
     List<String> import_variants;
     Error import_error = p_importer->import(p_path, file_import_path, params, &import_variants);
@@ -152,26 +194,11 @@ Error TabletopImporter::_import_resource(ResourceImporter *p_importer, const Str
     }
 
     /**
-     * STEP 5: Store the MD5 of the resource so we can check to see if we need
-     * to even do all this.
-     */
-    
-    md5_file = FileAccess::open(md5_file_path, FileAccess::WRITE);
-    if (!md5_file) {
-        return Error::ERR_FILE_CANT_WRITE;
-    }
-
-    md5_file->store_line(md5);
-    md5_file->close();
-    memdelete(md5_file);
-
-    /**
-     * STEP 6: Create a .import file next to the resource file so Godot knows
+     * STEP 3: Create a .import file next to the resource file so Godot knows
      * how to load it.
      */
 
-    dir->change_dir("../" + p_game + "/" + p_type);
-    FileAccess *file = FileAccess::open(dir->get_current_dir() + "/" + p_path.get_file() + ".import", FileAccess::WRITE);
+    FileAccess *file = FileAccess::open(p_path + ".import", FileAccess::WRITE);
     if (!file) {
         return Error::ERR_FILE_CANT_WRITE;
     }
@@ -197,8 +224,6 @@ Error TabletopImporter::_import_resource(ResourceImporter *p_importer, const Str
 
     file->close();
     memdelete(file);
-
-    memdelete(dir);
 
     return Error::OK;
 }
