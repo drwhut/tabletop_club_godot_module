@@ -1,2 +1,2 @@
-# open_tabletop_import_module
-A Godot Engine module allowing open-tabletop to import selected resources at runtime.
+# open_tabletop_godot_module
+ A Godot Engine module allowing OpenTabletop to perform functions that are not usually available with the vanilla Godot.
