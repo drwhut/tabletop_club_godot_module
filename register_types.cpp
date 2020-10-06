@@ -1,5 +1,5 @@
 /*
-    open_tabletop_import_module
+    open_tabletop_godot_module
     Copyright (c) 2020 Benjamin 'drwhut' Beddows
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,10 +26,10 @@
 #include "core/class_db.h"
 #include "tabletop_importer.h"
 
-void register_open_tabletop_import_module_types() {
+void register_open_tabletop_godot_module_types() {
     ClassDB::register_class<TabletopImporter>();
 }
 
-void unregister_open_tabletop_import_module_types() {
+void unregister_open_tabletop_godot_module_types() {
     
 }
