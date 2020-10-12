@@ -50,15 +50,19 @@ TabletopImporter::~TabletopImporter() {}
 
 Error TabletopImporter::copy_file(const String &p_from, const String &p_to) {
 
-    if (!FileAccess::exists(p_from)) {
-        return Error::ERR_FILE_NOT_FOUND;
-    }
+    ERR_FAIL_COND_V_MSG(
+        !FileAccess::exists(p_from),
+        Error::ERR_FILE_NOT_FOUND,
+        vformat("'%s' does not exist.", p_from)
+    );
 
     DirAccess *dir;
     Error import_dir_error = _create_import_dir(&dir);
-    if (!(import_dir_error == Error::OK || import_dir_error == Error::ERR_ALREADY_EXISTS)) {
-        return import_dir_error;
-    }
+    ERR_FAIL_COND_V_MSG(
+        !(import_dir_error == Error::OK || import_dir_error == Error::ERR_ALREADY_EXISTS),
+        import_dir_error,
+        "Could not create the .import directory."
+    );
 
     // Check to see if the corresponding .md5 file exists, and if it does, does
     // it contain the same hash? If so, we don't need to copy the file again.
@@ -70,9 +74,11 @@ Error TabletopImporter::copy_file(const String &p_from, const String &p_to) {
 
     if (FileAccess::exists(md5_file_path)) {
         md5_file = FileAccess::open(md5_file_path, FileAccess::READ);
-        if (!md5_file) {
-            return Error::ERR_FILE_CANT_READ;
-        }
+        ERR_FAIL_COND_V_MSG(
+            !md5_file,
+            Error::ERR_FILE_CANT_READ,
+            vformat("Could not open the file '%s'.", md5_file_path)
+        );
 
         String claimed_md5 = md5_file->get_line();
 
@@ -90,18 +96,21 @@ Error TabletopImporter::copy_file(const String &p_from, const String &p_to) {
     // copy the file over.
     DirAccess *main_dir = DirAccess::create(DirAccess::AccessType::ACCESS_FILESYSTEM);
     Error copy_error = main_dir->copy(p_from, p_to);
-
-    if (copy_error != Error::OK) {
-        return copy_error;
-    }
+    ERR_FAIL_COND_V_MSG(
+        copy_error != Error::OK,
+        copy_error,
+        vformat("Could not copy from '%s' to '%s'.", p_from, p_to)
+    );
 
     memdelete(main_dir);
     
     // Finally, create the .md5 file, and store the hash of the file in it.
     md5_file = FileAccess::open(md5_file_path, FileAccess::WRITE);
-    if (!md5_file) {
-        return Error::ERR_FILE_CANT_WRITE;
-    }
+    ERR_FAIL_COND_V_MSG(
+        !md5_file,
+        Error::ERR_FILE_CANT_WRITE,
+        vformat("Could not write to '%s'.", md5_file_path)
+    );
 
     md5_file->store_line(md5);
     md5_file->close();
@@ -130,10 +139,11 @@ void TabletopImporter::_bind_methods() {
 Error TabletopImporter::_create_import_dir(DirAccess **dir) {
     Error dir_error = Error::OK;
     DirAccess *import_dir = DirAccess::open(OS::get_singleton()->get_user_data_dir(), &dir_error);
-
-    if (dir_error != Error::OK) {
-        return dir_error;
-    }
+    ERR_FAIL_COND_V_MSG(
+        dir_error != Error::OK,
+        dir_error,
+        "Failed to open the user:// directory."
+    );
 
     dir_error = import_dir->make_dir(".import");
 
@@ -149,9 +159,11 @@ Error TabletopImporter::_create_import_dir(DirAccess **dir) {
 
 Error TabletopImporter::_import_resource(ResourceImporter *p_importer, const String &p_path) {
 
-    if (!FileAccess::exists(p_path)) {
-        return Error::ERR_FILE_NOT_FOUND;
-    }
+    ERR_FAIL_COND_V_MSG(
+        !FileAccess::exists(p_path),
+        Error::ERR_FILE_NOT_FOUND,
+        vformat("'%s' does not exist.", p_path)
+    );
 
     /**
      * STEP 1: Make sure the directories we want to write to exist.
@@ -160,9 +172,11 @@ Error TabletopImporter::_import_resource(ResourceImporter *p_importer, const Str
      */
     DirAccess *dir;
     Error import_dir_error = _create_import_dir(&dir);
-    if (!(import_dir_error == Error::OK || import_dir_error == Error::ERR_ALREADY_EXISTS)) {
-        return import_dir_error;
-    }
+    ERR_FAIL_COND_V_MSG(
+        !(import_dir_error == Error::OK || import_dir_error == Error::ERR_ALREADY_EXISTS),
+        import_dir_error,
+        "Could not create the .import directory."
+    );
 
     /**
      * STEP 2: Use the importer object to create a .stex file in the .import
@@ -188,10 +202,11 @@ Error TabletopImporter::_import_resource(ResourceImporter *p_importer, const Str
     
     List<String> import_variants;
     Error import_error = p_importer->import(p_path, file_import_path, params, &import_variants);
-
-    if (import_error != Error::OK) {
-        return import_error;
-    }
+    ERR_FAIL_COND_V_MSG(
+        import_error != Error::OK,
+        import_error,
+        vformat("Failed to import the file at '%s'.", p_path)
+    );
 
     /**
      * STEP 3: Create a .import file next to the resource file so Godot knows
@@ -199,9 +214,11 @@ Error TabletopImporter::_import_resource(ResourceImporter *p_importer, const Str
      */
 
     FileAccess *file = FileAccess::open(p_path + ".import", FileAccess::WRITE);
-    if (!file) {
-        return Error::ERR_FILE_CANT_WRITE;
-    }
+    ERR_FAIL_COND_V_MSG(
+        !file,
+        Error::ERR_FILE_CANT_WRITE,
+        vformat("Could not open the file at '%s'.", p_path + ".import")
+    );
 
     file->store_line("[remap]");
     file->store_line("importer=\"" + p_importer->get_importer_name() + "\"");
