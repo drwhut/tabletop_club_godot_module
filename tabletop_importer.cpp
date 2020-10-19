@@ -25,6 +25,7 @@
 
 #include "core/os/os.h"
 #include "editor/import/editor_scene_importer_gltf.h"
+#include "editor/import/resource_importer_obj.h"
 #include "editor/import/resource_importer_scene.h"
 #include "editor/import/resource_importer_texture.h"
 
@@ -43,6 +44,10 @@ TabletopImporter::TabletopImporter() {
         Ref<EditorSceneImporterGLTF> gltf_importer;
         gltf_importer.instance();
         scene_importer->add_importer(gltf_importer);
+
+        Ref<EditorOBJImporter> obj_importer;
+        obj_importer.instance();
+        scene_importer->add_importer(obj_importer);
     }
 }
 
