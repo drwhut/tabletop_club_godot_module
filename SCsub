@@ -1,3 +1,15 @@
 Import("env")
+Import("env_modules")
 
-env.add_source_files(env.modules_sources, "*.cpp")
+custom_env = env_modules.Clone()
+
+# NOTE: This was in the minimp3 SCsub, so it's going in here as well.
+thirdparty_dir = "#thirdparty/minimp3/"
+
+# Treat minimp3 headers as system headers to avoid raising warnings. Not supported on MSVC.
+if not env.msvc:
+    custom_env.Append(CPPFLAGS=["-isystem", Dir(thirdparty_dir).path])
+else:
+    custom_env.Prepend(CPPPATH=[thirdparty_dir])
+
+custom_env.add_source_files(env.modules_sources, "*.cpp")

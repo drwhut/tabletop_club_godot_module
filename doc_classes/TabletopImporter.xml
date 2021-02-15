@@ -20,22 +20,13 @@
 				Copies the file at [code]from[/code] to [code]to[/code]. If the file has already been copied before, and the contents of the file have not changed, then [code]ERR_ALREADY_EXISTS[/code] is returned.
 			</description>
 		</method>
-		<method name="import_scene">
+		<method name="import">
 			<return type="int" enum="Error">
 			</return>
 			<argument index="0" name="path" type="String">
 			</argument>
 			<description>
-				Import a scene resource from [code]path[/code].
-			</description>
-		</method>
-		<method name="import_texture">
-			<return type="int" enum="Error">
-			</return>
-			<argument index="0" name="path" type="String">
-			</argument>
-			<description>
-				Import a texture resource from [code]path[/code].
+				Import a resource from [code]path[/code].
 			</description>
 		</method>
 	</methods>

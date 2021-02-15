@@ -28,6 +28,9 @@
 #include "editor/import/resource_importer_obj.h"
 #include "editor/import/resource_importer_scene.h"
 #include "editor/import/resource_importer_texture.h"
+#include "editor/import/resource_importer_wav.h"
+#include "modules/minimp3/resource_importer_mp3.h"
+#include "modules/stb_vorbis/resource_importer_ogg_vorbis.h"
 
 TabletopImporter::TabletopImporter() {
     if (!ResourceImporterTexture::get_singleton()) {
@@ -48,6 +51,24 @@ TabletopImporter::TabletopImporter() {
         Ref<EditorOBJImporter> obj_importer;
         obj_importer.instance();
         scene_importer->add_importer(obj_importer);
+    }
+
+    if (ResourceFormatImporter::get_singleton()->get_importer_by_name("wav").is_null()) {
+        Ref<ResourceImporterWAV> wav_importer;
+        wav_importer.instance();
+        ResourceFormatImporter::get_singleton()->add_importer(wav_importer);
+    }
+
+    if (ResourceFormatImporter::get_singleton()->get_importer_by_name("ogg_vorbis").is_null()) {
+        Ref<ResourceImporterOGGVorbis> ogg_importer;
+        ogg_importer.instance();
+        ResourceFormatImporter::get_singleton()->add_importer(ogg_importer);
+    }
+
+    if (ResourceFormatImporter::get_singleton()->get_importer_by_name("mp3").is_null()) {
+        Ref<ResourceImporterMP3> mp3_importer;
+        mp3_importer.instance();
+        ResourceFormatImporter::get_singleton()->add_importer(mp3_importer);
     }
 }
 
@@ -125,20 +146,20 @@ Error TabletopImporter::copy_file(const String &p_from, const String &p_to) {
     return Error::OK;
 }
 
-Error TabletopImporter::import_scene(const String &p_path) {
+Error TabletopImporter::import(const String &p_path) {
+    ERR_FAIL_COND_V_MSG(
+        !ResourceFormatImporter::get_singleton()->can_be_imported(p_path),
+        Error::ERR_FILE_UNRECOGNIZED,
+        vformat("Cannot import '%s', unknown file format.", p_path)
+    );
 
-    return _import_resource(ResourceImporterScene::get_singleton(), p_path);
-}
-
-Error TabletopImporter::import_texture(const String &p_path) {
-
-    return _import_resource(ResourceImporterTexture::get_singleton(), p_path);
+    Ref<ResourceImporter> importer = ResourceFormatImporter::get_singleton()->get_importer_by_extension(p_path.get_extension());
+    return _import_resource(importer, p_path);
 }
 
 void TabletopImporter::_bind_methods() {
     ClassDB::bind_method(D_METHOD("copy_file", "from", "to"), &TabletopImporter::copy_file);
-    ClassDB::bind_method(D_METHOD("import_scene", "path"), &TabletopImporter::import_scene);
-    ClassDB::bind_method(D_METHOD("import_texture", "path"), &TabletopImporter::import_texture);
+    ClassDB::bind_method(D_METHOD("import", "path"), &TabletopImporter::import);
 }
 
 Error TabletopImporter::_create_import_dir(DirAccess **dir) {
@@ -162,7 +183,7 @@ Error TabletopImporter::_create_import_dir(DirAccess **dir) {
     return dir_error;
 }
 
-Error TabletopImporter::_import_resource(ResourceImporter *p_importer, const String &p_path) {
+Error TabletopImporter::_import_resource(Ref<ResourceImporter> p_importer, const String &p_path) {
 
     ERR_FAIL_COND_V_MSG(
         !FileAccess::exists(p_path),
