@@ -24,6 +24,7 @@
 #include "tabletop_importer.h"
 
 #include "core/os/os.h"
+#include "editor/import/editor_import_collada.h"
 #include "editor/import/editor_scene_importer_gltf.h"
 #include "editor/import/resource_importer_obj.h"
 #include "editor/import/resource_importer_scene.h"
@@ -44,6 +45,10 @@ TabletopImporter::TabletopImporter() {
         scene_importer.instance();
         ResourceFormatImporter::get_singleton()->add_importer(scene_importer);
     
+        Ref<EditorSceneImporterCollada> collada_importer;
+        collada_importer.instance();
+        scene_importer->add_importer(collada_importer);
+
         Ref<EditorSceneImporterGLTF> gltf_importer;
         gltf_importer.instance();
         scene_importer->add_importer(gltf_importer);
