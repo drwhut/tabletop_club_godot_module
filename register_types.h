@@ -1,5 +1,5 @@
 /*
-    open_tabletop_godot_module
+    tabletop_club_godot_module
     Copyright (c) 2020 Benjamin 'drwhut' Beddows
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,5 +21,5 @@
     SOFTWARE.
 */
 
-void register_open_tabletop_godot_module_types();
-void unregister_open_tabletop_godot_module_types();
+void register_tabletop_club_godot_module_types();
+void unregister_tabletop_club_godot_module_types();
