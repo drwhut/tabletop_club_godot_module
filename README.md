@@ -5,10 +5,12 @@ perform specific tasks that are not possible with the vanilla Godot.
 
 ## What does this module do?
 
-Right now, this module only does one thing: it allows for the importing of
-specific resources from anywhere in the file system **at runtime**! By default,
-Godot only imports resources when in-editor, and the functionality cannot be
-called via GDScript.
+Right now, this module only does two things:
+
+* It allows for the importing of specific resources from anywhere in the file
+  system **at runtime**!
+
+* It allows for warnings and errors to be caught in GDScript.
 
 ## How can I use this module?
 

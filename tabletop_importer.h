@@ -1,6 +1,6 @@
 /*
     tabletop_club_godot_module
-    Copyright (c) 2020 Benjamin 'drwhut' Beddows
+    Copyright (c) 2020-2021 Benjamin 'drwhut' Beddows
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal

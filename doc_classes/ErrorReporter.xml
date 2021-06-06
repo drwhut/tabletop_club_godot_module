@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="ErrorReporter" inherits="Reference" version="3.3">
+	<brief_description>
+		Catch errors and warnings in GDScript.
+	</brief_description>
+	<description>
+		Catch errors and warnings in GDScript throught the use of signals.
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+	</methods>
+	<signals>
+		<signal name="error_received">
+			<argument index="0" name="func" type="String">
+			</argument>
+			<argument index="1" name="file" type="String">
+			</argument>
+			<argument index="2" name="line" type="int">
+			</argument>
+			<argument index="3" name="error" type="String">
+			</argument>
+			<argument index="4" name="errorexp" type="String">
+			</argument>
+			<description>
+				This signal is fired if an error has occured.
+			</description>
+		</signal>
+		<signal name="warning_received">
+			<argument index="0" name="func" type="String">
+			</argument>
+			<argument index="1" name="file" type="String">
+			</argument>
+			<argument index="2" name="line" type="int">
+			</argument>
+			<argument index="3" name="error" type="String">
+			</argument>
+			<argument index="4" name="errorexp" type="String">
+			</argument>
+			<description>
+				This signal is fired if a warning has occured.
+			</description>
+		</signal>
+	</signals>
+	<constants>
+	</constants>
+</class>

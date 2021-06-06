@@ -1,6 +1,6 @@
 /*
     tabletop_club_godot_module
-    Copyright (c) 2020 Benjamin 'drwhut' Beddows
+    Copyright (c) 2020-2021 Benjamin 'drwhut' Beddows
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -24,9 +24,11 @@
 #include "register_types.h"
 
 #include "core/class_db.h"
+#include "error_reporter.h"
 #include "tabletop_importer.h"
 
 void register_tabletop_club_godot_module_types() {
+    ClassDB::register_class<ErrorReporter>();
     ClassDB::register_class<TabletopImporter>();
 }
 
