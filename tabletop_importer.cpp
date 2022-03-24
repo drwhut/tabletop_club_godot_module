@@ -25,11 +25,11 @@
 
 #include "core/os/os.h"
 #include "editor/import/editor_import_collada.h"
-#include "editor/import/editor_scene_importer_gltf.h"
 #include "editor/import/resource_importer_obj.h"
 #include "editor/import/resource_importer_scene.h"
 #include "editor/import/resource_importer_texture.h"
 #include "editor/import/resource_importer_wav.h"
+#include "modules/gltf/editor_scene_importer_gltf.h"
 #include "modules/minimp3/resource_importer_mp3.h"
 #include "modules/stb_vorbis/resource_importer_ogg_vorbis.h"
 
