@@ -29,9 +29,7 @@ ErrorReporter::ErrorReporter() {
     add_error_handler(&eh);
 }
 
-ErrorReporter::~ErrorReporter() {}
-
-void ErrorReporter::deinit() {
+ErrorReporter::~ErrorReporter() {
     remove_error_handler(&eh);
 }
 
