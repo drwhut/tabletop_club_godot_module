@@ -79,7 +79,7 @@ TabletopImporter::TabletopImporter() {
 
 TabletopImporter::~TabletopImporter() {}
 
-Error TabletopImporter::copy_file(const String &p_from, const String &p_to) {
+Error TabletopImporter::copy_file(const String &p_from, const String &p_to, bool force) {
 
     ERR_FAIL_COND_V_MSG(
         !FileAccess::exists(p_from),
@@ -103,7 +103,9 @@ Error TabletopImporter::copy_file(const String &p_from, const String &p_to) {
     String md5 = FileAccess::get_md5(p_from);
     FileAccess *md5_file;
 
-    if (FileAccess::exists(md5_file_path)) {
+    bool skip = false;
+
+    if (!force && FileAccess::exists(md5_file_path)) {
         md5_file = FileAccess::open(md5_file_path, FileAccess::READ);
         ERR_FAIL_COND_V_MSG(
             !md5_file,
@@ -117,11 +119,15 @@ Error TabletopImporter::copy_file(const String &p_from, const String &p_to) {
         memdelete(md5_file);
 
         if (claimed_md5 == md5) {
-            return Error::ERR_ALREADY_EXISTS;
+            skip = true;
         }
     }
 
     memdelete(dir);
+
+    if (skip) {
+        return Error::ERR_ALREADY_EXISTS;
+    }
 
     // If either the .md5 file doesn't exist, or the hash is not the same, then
     // copy the file over.
@@ -163,7 +169,7 @@ Error TabletopImporter::import(const String &p_path) {
 }
 
 void TabletopImporter::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("copy_file", "from", "to"), &TabletopImporter::copy_file);
+    ClassDB::bind_method(D_METHOD("copy_file", "from", "to", "force"), &TabletopImporter::copy_file, DEFVAL(false));
     ClassDB::bind_method(D_METHOD("import", "path"), &TabletopImporter::import);
 }
 

@@ -36,7 +36,7 @@ public:
     TabletopImporter();
     ~TabletopImporter();
 
-    Error copy_file(const String &p_from, const String &p_to);
+    Error copy_file(const String &p_from, const String &p_to, bool force = false);
     Error import(const String &p_path);
 
 protected:

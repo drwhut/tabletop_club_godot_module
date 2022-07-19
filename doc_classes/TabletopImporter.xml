@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="TabletopImporter" inherits="Reference" version="3.2">
+<class name="TabletopImporter" inherits="Reference" version="3.4">
 	<brief_description>
 		Class for importing resources at runtime.
 	</brief_description>
 	<description>
-		Class for importing resources at runtime. Without this module, this functionality is not available to GDScript. This module also requires editor code to be linked, and as such, the engine must be compiled with [code]tools=yes[/code], even in a release build.
+		Class for importing resources at runtime.
+		Without this module, this functionality is not available to GDScript.
+		This module also requires editor code to be linked, and as such, the engine must be compiled with [code]tools=yes[/code], even in a release build.
 	</description>
 	<tutorials>
 	</tutorials>
 	<methods>
 		<method name="copy_file">
-			<return type="int" enum="Error">
-			</return>
-			<argument index="0" name="from" type="String">
-			</argument>
-			<argument index="1" name="to" type="String">
-			</argument>
+			<return type="int" enum="Error" />
+			<argument index="0" name="from" type="String" />
+			<argument index="1" name="to" type="String" />
+			<argument index="2" name="force" type="bool" default="false" />
 			<description>
-				Copies the file at [code]from[/code] to [code]to[/code]. If the file has already been copied before, and the contents of the file have not changed, then [code]ERR_ALREADY_EXISTS[/code] is returned.
+				Copies the file at [code]from[/code] to [code]to[/code].
+				If the file has already been copied before, and the contents of the file have not changed, then [code]ERR_ALREADY_EXISTS[/code] is returned.
+				If [code]force[/code] is [code]true[/code], then the file is copied regardless of whether the file has changed or not.
 			</description>
 		</method>
 		<method name="import">
-			<return type="int" enum="Error">
-			</return>
-			<argument index="0" name="path" type="String">
-			</argument>
+			<return type="int" enum="Error" />
+			<argument index="0" name="path" type="String" />
 			<description>
 				Import a resource from [code]path[/code].
 			</description>
