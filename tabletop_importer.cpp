@@ -105,7 +105,7 @@ Error TabletopImporter::copy_file(const String &p_from, const String &p_to, bool
 
     bool skip = false;
 
-    if (!force && FileAccess::exists(md5_file_path)) {
+    if (!force && FileAccess::exists(md5_file_path) && FileAccess::exists(p_to)) {
         md5_file = FileAccess::open(md5_file_path, FileAccess::READ);
         ERR_FAIL_COND_V_MSG(
             !md5_file,
