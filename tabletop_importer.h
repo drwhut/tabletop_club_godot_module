@@ -1,6 +1,6 @@
 /*
     tabletop_club_godot_module
-    Copyright (c) 2020-2021 Benjamin 'drwhut' Beddows
+    Copyright (c) 2020-2023 Benjamin 'drwhut' Beddows
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -26,8 +26,6 @@
 
 #include "core/error_list.h"
 #include "core/reference.h"
-#include "core/io/resource_importer.h"
-#include "core/os/dir_access.h"
 
 class TabletopImporter : public Reference {
     GDCLASS(TabletopImporter, Reference);
@@ -36,13 +34,10 @@ public:
     TabletopImporter();
     ~TabletopImporter();
 
-    Error copy_file(const String &p_from, const String &p_to, bool force = false);
-    Error import(const String &p_path);
+    Error import(const String &p_path, const String &p_import_path, const Dictionary &p_options);
 
 protected:
     static void _bind_methods();
-    static Error _create_import_dir(DirAccess **dir);
-    static Error _import_resource(Ref<ResourceImporter> p_importer, const String &p_path);
 };
 
 #endif // TABLETOP_IMPORTER_H

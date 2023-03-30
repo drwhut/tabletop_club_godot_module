@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="ErrorReporter" inherits="Reference" version="3.4">
+<class name="ErrorReporter" inherits="Reference" version="3.5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../doc/class.xsd">
 	<brief_description>
-		Catch errors and warnings in GDScript.
+		Detect errors thrown by the engine.
 	</brief_description>
 	<description>
-		Catch errors and warnings in GDScript through the use of signals.
+		When an error or a warning is thrown, the corresponding signal is emitted with the relevant details.
 	</description>
 	<tutorials>
 	</tutorials>
@@ -18,7 +18,7 @@
 			<argument index="3" name="error" type="String" />
 			<argument index="4" name="errorexp" type="String" />
 			<description>
-				This signal is fired if an error has occured.
+				This signal is emitted when an error is thrown.
 			</description>
 		</signal>
 		<signal name="warning_received">
@@ -28,7 +28,7 @@
 			<argument index="3" name="error" type="String" />
 			<argument index="4" name="errorexp" type="String" />
 			<description>
-				This signal is fired if a warning has occured.
+				This signal is emitted when a warning is thrown.
 			</description>
 		</signal>
 	</signals>
