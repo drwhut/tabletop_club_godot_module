@@ -142,7 +142,7 @@ Error TabletopImporter::import(const String &p_path, const String &p_import_path
         // Dictionary has the highest priority.
         if (p_options.has(option_name)) {
             import_params[option_name] = p_options.get(option_name, option_default);
-        } else if (import_params.has(option_name)) {
+        } else if (!import_params.has(option_name)) {
             import_params[option_name] = option_default;
         }
     }
